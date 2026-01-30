@@ -170,7 +170,14 @@
   }
 
   function initSocket() {
-    window.WSClient.connect();
+    // On Vercel, fetch backend URL from /api/config; locally use same origin
+    function doConnect() {
+      fetch('/api/config')
+        .then(function (r) { return r.json(); })
+        .then(function (data) { window.WSClient.connect(data.socketUrl || ''); })
+        .catch(function () { window.WSClient.connect(''); });
+    }
+    doConnect();
 
     window.WSClient.on('joined', (data) => {
       myUserId = data.userId;
